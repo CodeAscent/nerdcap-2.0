@@ -1,4 +1,4 @@
-import { Bell, Sun } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 export default function TopBar() {

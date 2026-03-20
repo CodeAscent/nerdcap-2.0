@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, FileText, Plus, Map, Star,
-  Lightbulb, TrendingUp, Server, LogOut, Wind, Leaf
+  LayoutDashboard, FileText, Plus,
+  Star, TrendingUp, Server, LogOut, Leaf
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { clsx } from 'clsx';

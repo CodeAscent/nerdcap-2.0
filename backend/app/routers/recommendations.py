@@ -26,15 +26,16 @@ def recommend_sites(
     return results
 
 
+from uuid import UUID
+
 @router.get("/developers")
 def recommend_developers(
-    parcel_id: str = Query(...),
+    parcel_id: UUID = Query(...),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
     from app.services.recommendation_engine import recommend_developers_for_site
-    from uuid import UUID
-    results = recommend_developers_for_site(UUID(parcel_id), db)
+    results = recommend_developers_for_site(parcel_id, db)
     return results
 
 

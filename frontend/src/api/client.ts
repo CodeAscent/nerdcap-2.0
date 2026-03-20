@@ -49,6 +49,11 @@ export const parcelsApi = {
   get: (id: string) => api.get(`/api/land-parcels/${id}`),
 };
 
+// ── Developers ─────────────────────────────────────────
+export const developersApi = {
+  list: () => api.get('/api/developers'),
+};
+
 // ── Proposals ─────────────────────────────────────────
 export const proposalsApi = {
   list: (params?: Record<string, string>) =>

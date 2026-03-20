@@ -1,7 +1,7 @@
 services:
   # PostgreSQL with PostGIS extension
   postgres:
-    image: postgis/postgis:15-3.4
+    image: postgis/postgis:15-3.3-alpine
     environment:
       POSTGRES_USER: nredcap
       POSTGRES_PASSWORD: nredcap123
@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nredcap -d nredcap_db"]
+      test: ["CMD-SHELL", "pg_isready -h localhost -U nredcap -d nredcap_db"]
       interval: 10s
       timeout: 5s
       retries: 5

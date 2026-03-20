@@ -18,15 +18,19 @@ from app.models.models import ProposalStatus
 from app.schemas import (
     ProposalCreate, ProposalResponse, ProposalDetailResponse,
     LandParcelResponse, LandParcelGeoResponse, DecisionRequest,
-    AnalysisStatusResponse,
+    AnalysisStatusResponse, DeveloperResponse
 )
 
 router = APIRouter(prefix="/api", tags=["Proposals"])
 
 
 # ---------------------------------------------------------------------------
-# Land Parcels
+# Developers & Land Parcels
 # ---------------------------------------------------------------------------
+@router.get("/developers", response_model=list[DeveloperResponse])
+def list_developers(db: Session = Depends(get_db)):
+    return db.query(Developer).all()
+
 @router.get("/land-parcels", response_model=list[LandParcelResponse])
 def list_land_parcels(
     district: Optional[str] = None,

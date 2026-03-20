@@ -5,6 +5,7 @@ WORKDIR /app
 # Install system dependencies for GIS and psycopg2
 RUN apt-get update && apt-get install -y \
     gcc \
+    g++ \
     gdal-bin \
     libgdal-dev \
     libpq-dev \
