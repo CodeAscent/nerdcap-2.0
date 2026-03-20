@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-slate-950 text-slate-100 font-sans antialiased;
+    min-height: 100vh;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-slate-900; }
+  ::-webkit-scrollbar-thumb { @apply bg-slate-600 rounded-full; }
+}
+
+@layer components {
+  /* Cards */
+  .card {
+    @apply bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg;
+  }
+  .card-glass {
+    @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 bg-nredcap-600 hover:bg-nredcap-500 text-white font-semibold 
+           px-5 py-2.5 rounded-xl transition-all duration-200 active:scale-95 shadow-lg 
+           shadow-nredcap-900/40 text-sm;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold 
+           px-5 py-2.5 rounded-xl transition-all duration-200 active:scale-95 text-sm border border-slate-700;
+  }
+  .btn-gov {
+    @apply inline-flex items-center gap-2 bg-gov-700 hover:bg-gov-600 text-white font-semibold 
+           px-5 py-2.5 rounded-xl transition-all duration-200 active:scale-95 text-sm shadow-lg;
+  }
+  .btn-danger {
+    @apply inline-flex items-center gap-2 bg-red-700 hover:bg-red-600 text-white font-semibold 
+           px-5 py-2.5 rounded-xl transition-all duration-200 active:scale-95 text-sm;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 text-slate-400 hover:text-slate-100 hover:bg-slate-800 
+           px-4 py-2 rounded-xl transition-all duration-200 text-sm;
+  }
+
+  /* Form inputs */
+  .input {
+    @apply w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-sm
+           placeholder:text-slate-500 focus:outline-none focus:border-nredcap-500 focus:ring-1 
+           focus:ring-nredcap-500/40 transition-all duration-200;
+  }
+  .select {
+    @apply w-full bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-sm
+           focus:outline-none focus:border-nredcap-500 focus:ring-1 focus:ring-nredcap-500/40 
+           transition-all duration-200 cursor-pointer;
+  }
+  .label {
+    @apply block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5;
+  }
+
+  /* Badges */
+  .badge { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+  .badge-green { @apply badge bg-nredcap-900/60 text-nredcap-400 border border-nredcap-700/50; }
+  .badge-blue  { @apply badge bg-gov-900/60 text-gov-400 border border-gov-700/50; }
+  .badge-amber { @apply badge bg-amber-900/60 text-amber-400 border border-amber-700/50; }
+  .badge-red   { @apply badge bg-red-900/60 text-red-400 border border-red-700/50; }
+  .badge-slate { @apply badge bg-slate-800 text-slate-400 border border-slate-700; }
+
+  /* Grade badges */
+  .grade-a { @apply badge bg-nredcap-900 text-nredcap-300 border border-nredcap-600; }
+  .grade-b { @apply badge bg-gov-900 text-gov-300 border border-gov-600; }
+  .grade-c { @apply badge bg-amber-900 text-amber-300 border border-amber-600; }
+  .grade-d { @apply badge bg-red-900 text-red-300 border border-red-600; }
+
+  /* Table */
+  .table-wrapper { @apply w-full overflow-x-auto rounded-xl border border-slate-800; }
+  .table { @apply w-full text-sm; }
+  .table thead tr { @apply bg-slate-800/80; }
+  .table th { @apply px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap; }
+  .table tbody tr { @apply border-t border-slate-800 hover:bg-slate-800/40 transition-colors; }
+  .table td { @apply px-4 py-3 text-slate-300 whitespace-nowrap; }
+
+  /* KPI card */
+  .kpi-card {
+    @apply card flex flex-col gap-1 relative overflow-hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    @apply absolute inset-x-0 top-0 h-0.5;
+  }
+  .kpi-card.green::before { @apply bg-gradient-to-r from-nredcap-500 to-nredcap-700; }
+  .kpi-card.blue::before  { @apply bg-gradient-to-r from-gov-500 to-gov-700; }
+  .kpi-card.amber::before { @apply bg-gradient-to-r from-amber-500 to-amber-700; }
+  .kpi-card.red::before   { @apply bg-gradient-to-r from-red-500 to-red-700; }
+  .kpi-card.purple::before { @apply bg-gradient-to-r from-purple-500 to-purple-700; }
+
+  /* Sidebar link */
+  .nav-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400
+           hover:text-slate-100 hover:bg-slate-800 transition-all duration-150;
+  }
+  .nav-link.active {
+    @apply text-nredcap-400 bg-nredcap-950/60 border border-nredcap-900/60;
+  }
+
+  /* Agent card */
+  .agent-card {
+    @apply flex items-start gap-3 p-3 rounded-xl border transition-all duration-300;
+  }
+  .agent-card.running { @apply border-gov-700/60 bg-gov-950/30; }
+  .agent-card.success { @apply border-nredcap-700/60 bg-nredcap-950/30; }
+  .agent-card.pending { @apply border-slate-700 bg-slate-900/30; }
+  .agent-card.error   { @apply border-red-700/60 bg-red-950/30; }
+
+  /* Divider */
+  .divider { @apply border-t border-slate-800 my-6; }
+
+  /* Section title */
+  .section-title {
+    @apply text-lg font-bold text-slate-100 flex items-center gap-2;
+  }
+  .page-title {
+    @apply text-2xl font-extrabold text-slate-50 tracking-tight;
+  }
+}
+
+/* Leaflet overrides */
+.leaflet-container {
+  background: #0f172a !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.leaflet-control-zoom a {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+/* Animations */
+@keyframes pulse-ring {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.05); }
+}
+.animate-pulse-ring { animation: pulse-ring 1.5s ease-in-out infinite; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.35s ease-out forwards; }
+
+@keyframes slide-in {
+  from { opacity:0; transform: translateX(-12px); }
+  to   { opacity:1; transform: translateX(0); }
+}
+.animate-slide-in { animation: slide-in 0.35s ease-out forwards; }
