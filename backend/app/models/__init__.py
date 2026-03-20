@@ -6,6 +6,7 @@ from app.models.models import (
     Conflict,
     AuditLog,
     User,
+    OfficerScore,
     ProjectType,
     ProposalStatus,
     GradeEnum,
@@ -15,6 +16,6 @@ from app.models.models import (
 
 __all__ = [
     "LandParcel", "Developer", "Proposal", "TrustScore",
-    "Conflict", "AuditLog", "User",
+    "Conflict", "AuditLog", "User", "OfficerScore",
     "ProjectType", "ProposalStatus", "GradeEnum", "ConflictSeverity", "UserRole",
 ]

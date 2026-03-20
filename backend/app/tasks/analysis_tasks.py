@@ -38,7 +38,7 @@ def run_analysis_background(proposal_id: str):
 
         # Run async orchestration in sync context
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(run_analysis(proposal_id, proposal_data))
+        result = loop.run_until_complete(run_analysis(proposal_id, proposal_data, db))
         loop.close()
 
         # Persist agent results
@@ -63,8 +63,8 @@ def run_analysis_background(proposal_id: str):
         # Compute trust score
         trust_score_engine.compute_and_store(proposal_id, result.council_decision, db)
 
-        # Store conflicts
-        conflict_detector.store_from_council(proposal_id, result.council_decision, db)
+        # Store conflicts (including spatial conflicts)
+        conflict_detector.store_from_council(proposal_id, result.council_decision, db, result.spatial_conflicts)
 
         # Log: council completed
         audit_chain.append(proposal_id, "FTM Council", "deliberation_completed", {

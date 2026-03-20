@@ -1,18 +1,28 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, Plus,
-  Star, TrendingUp, Server, LogOut, Leaf
+  Star, TrendingUp, Server, LogOut, Leaf,
+  Users, Settings
 } from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
+import { useAuthStore, type AuthUser } from '../../store/authStore';
 import { clsx } from 'clsx';
 
-const navItems = [
-  { to: '/dashboard',       icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/proposals',       icon: FileText,        label: 'Proposals' },
-  { to: '/proposals/new',   icon: Plus,            label: 'New Proposal' },
-  { to: '/recommendations', icon: Star,            label: 'Recommendations' },
-  { to: '/predictions',     icon: TrendingUp,      label: 'Predictions' },
-  { to: '/api-health',      icon: Server,          label: 'API Status' },
+type NavItem = {
+  to: string;
+  icon: React.ComponentType<{ size?: number }>;
+  label: string;
+  roles: AuthUser['role'][];
+};
+
+const navItems: NavItem[] = [
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['developer', 'officer', 'admin'] },
+  { to: '/proposals', icon: FileText, label: 'Proposals', roles: ['developer', 'officer', 'admin'] },
+  { to: '/proposals/new', icon: Plus, label: 'New Proposal', roles: ['developer', 'admin'] },
+  { to: '/recommendations', icon: Star, label: 'Recommendations', roles: ['developer', 'officer', 'admin'] },
+  { to: '/predictions', icon: TrendingUp, label: 'Predictions', roles: ['officer', 'admin'] },
+  { to: '/users', icon: Users, label: 'Users', roles: ['officer', 'admin'] },
+  { to: '/settings', icon: Settings, label: 'System Settings', roles: ['admin'] },
+  { to: '/api-health', icon: Server, label: 'API Status', roles: ['developer', 'officer', 'admin'] },
 ];
 
 export default function Sidebar() {
@@ -41,18 +51,20 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              clsx('nav-link', isActive && 'active')
-            }
-          >
-            <Icon size={16} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
+        {navItems
+          .filter(item => user?.role && item.roles.includes(user.role))
+          .map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                clsx('nav-link', isActive && 'active')
+              }
+            >
+              <Icon size={16} />
+              <span>{label}</span>
+            </NavLink>
+          ))}
       </nav>
 
       {/* User + logout */}

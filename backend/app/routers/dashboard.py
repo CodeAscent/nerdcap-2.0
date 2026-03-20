@@ -7,10 +7,11 @@ from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
 from app.database import get_db
-from app.models import Proposal, TrustScore
+from app.models import Proposal, TrustScore, Developer
 from app.models.models import ProposalStatus
 from app.schemas import DashboardSummary
 from app.stubs import rtgs_stub
+from app.services.officer_score import get_officer_leaderboard, update_all_officer_scores
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 
@@ -117,3 +118,65 @@ def manual_rtgs_sync(
         "project_type": proposal.project_type.value,
     })
     return result
+
+
+@router.get("/officer-scores")
+def officer_scores(
+    limit: int = 10,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """Return officer responsiveness leaderboard."""
+    return get_officer_leaderboard(db, limit)
+
+
+@router.post("/officer-scores/refresh")
+def refresh_officer_scores(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """Trigger recomputation of all officer scores."""
+    updated = update_all_officer_scores(db)
+    return {"message": f"Updated {len(updated)} officer scores"}
+
+
+@router.get("/developer-tracking")
+def developer_tracking(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    results = (
+        db.query(
+            Developer.id,
+            Developer.name,
+            Developer.company,
+            func.count(Proposal.id).label("total_proposals"),
+            func.sum(
+                func.coalesce(Proposal.capacity_mw, 0)
+            ).filter(Proposal.status == ProposalStatus.approved).label("approved_mw"),
+            func.count(Proposal.id).filter(
+                Proposal.status.in_([ProposalStatus.pending, ProposalStatus.analyzing])
+            ).label("pending_proposals"),
+            func.count(Proposal.id).filter(
+                Proposal.status == ProposalStatus.rejected
+            ).label("rejected_proposals"),
+            func.avg(TrustScore.overall_score).label("avg_trust_score"),
+        )
+        .join(Proposal, Developer.id == Proposal.developer_id, isouter=True)
+        .join(TrustScore, TrustScore.proposal_id == Proposal.id, isouter=True)
+        .group_by(Developer.id, Developer.name, Developer.company)
+        .order_by(func.sum(func.coalesce(Proposal.capacity_mw, 0)).filter(Proposal.status == ProposalStatus.approved).desc())
+        .limit(20)
+        .all()
+    )
+
+    return [
+        {
+            "developer_id": str(r.id),
+            "name": r.name,
+            "company": r.company or "",
+            "total_proposals": r.total_proposals or 0,
+            "approved_mw": round(float(r.approved_mw or 0), 2),
+            "pending_proposals": r.pending_proposals or 0,
+            "rejected_proposals": r.rejected_proposals or 0,
+            "avg_trust_score": round(float(r.avg_trust_score or 0), 1),
+        }
+        for r in results
+    ]

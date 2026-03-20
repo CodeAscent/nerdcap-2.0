@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { proposalsApi } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import {
   Bot, CheckCircle2, XCircle, AlertTriangle, Download,
-  Play, Loader2, Clock, ChevronRight, Shield, Hash
+  Play, Loader2, Clock, ChevronRight, Shield, Hash, Trash2
 } from 'lucide-react';
 import {
   RadialBarChart, RadialBar, ResponsiveContainer,
@@ -29,10 +29,13 @@ const AGENT_ICONS: Record<string, string> = {
 
 export default function ProposalDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const qc = useQueryClient();
   const [decisionNotes, setDecisionNotes] = useState('');
   const [decisionLoading, setDecisionLoading] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['proposal', id],
@@ -65,6 +68,20 @@ export default function ProposalDetail() {
     }
   };
 
+  const handleDelete = async () => {
+    setDeleteLoading(true);
+    try {
+      await proposalsApi.delete(id!);
+      qc.invalidateQueries({ queryKey: ['proposals'] });
+      navigate('/proposals');
+    } catch (error) {
+      console.error('Failed to delete proposal:', error);
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 size={24} className="animate-spin text-slate-600" /></div>;
 
   const p = data?.data;
@@ -83,6 +100,7 @@ export default function ProposalDetail() {
 
   const isAnalyzed = ['analyzed', 'under_review', 'approved', 'rejected', 'escalated'].includes(p.status);
   const canDecide = ['officer', 'admin'].includes(user?.role || '') && ['analyzed', 'under_review', 'escalated'].includes(p.status);
+  const canDelete = user?.role === 'admin' && p.status === 'pending';
 
   return (
     <div className="space-y-6 animate-fade-up max-w-5xl">
@@ -107,6 +125,15 @@ export default function ProposalDetail() {
             >
               {analyzeMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
               Run AI Analysis
+            </button>
+          )}
+          {canDelete && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="btn-danger"
+            >
+              <Trash2 size={14} />
+              Delete Proposal
             </button>
           )}
         </div>
@@ -323,6 +350,38 @@ export default function ProposalDetail() {
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="card max-w-md w-full mx-4 border-red-800/60 bg-slate-900">
+            <h3 className="section-title text-red-400 mb-3">
+              <AlertTriangle size={18} />
+              Delete Proposal
+            </h3>
+            <p className="text-slate-300 mb-6">
+              Are you sure you want to delete this pending proposal? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="btn-ghost"
+                disabled={deleteLoading}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteLoading}
+                className="btn-danger"
+              >
+                {deleteLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

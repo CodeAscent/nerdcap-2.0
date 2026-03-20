@@ -11,10 +11,10 @@ from sqlalchemy.orm import Session
 from geoalchemy2.shape import to_shape
 from shapely.geometry import mapping, shape
 
-from app.auth import get_current_user, require_officer
+from app.auth import get_current_user, require_officer, require_admin
 from app.database import get_db
 from app.models import LandParcel, Developer, Proposal, User
-from app.models.models import ProposalStatus
+from app.models.models import ProposalStatus, UserRole
 from app.schemas import (
     ProposalCreate, ProposalResponse, ProposalDetailResponse,
     LandParcelResponse, LandParcelGeoResponse, DecisionRequest,
@@ -108,10 +108,21 @@ def list_proposals(
     current_user: User = Depends(get_current_user),
 ):
     q = db.query(Proposal)
+
+    if current_user.role == UserRole.developer:
+        developer = db.query(Developer).filter(Developer.email == current_user.email).first()
+        if developer:
+            q = q.filter(Proposal.developer_id == developer.id)
+        else:
+            return []
+    elif current_user.role == UserRole.officer:
+        if district:
+            q = q.filter(Proposal.district.ilike(f"%{district}%"))
+        elif current_user.district:
+            q = q.filter(Proposal.district.ilike(f"%{current_user.district}%"))
+
     if status_filter:
         q = q.filter(Proposal.status == status_filter)
-    if district:
-        q = q.filter(Proposal.district.ilike(f"%{district}%"))
     if project_type:
         q = q.filter(Proposal.project_type == project_type)
     q = q.order_by(Proposal.submitted_at.desc())
@@ -219,6 +230,23 @@ def record_decision(
         })
 
     return {"message": f"Proposal {payload.action}d successfully", "status": proposal.status}
+
+
+@router.delete("/proposals/{proposal_id}")
+def delete_proposal(
+    proposal_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    proposal = db.query(Proposal).filter(Proposal.id == proposal_id).first()
+    if not proposal:
+        raise HTTPException(status_code=404, detail="Proposal not found")
+    if proposal.status != ProposalStatus.pending:
+        raise HTTPException(status_code=400, detail="Only pending proposals can be deleted")
+    
+    db.delete(proposal)
+    db.commit()
+    return {"message": "Proposal deleted successfully"}
 
 
 @router.get("/proposals/{proposal_id}/report")

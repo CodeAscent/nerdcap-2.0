@@ -10,6 +10,8 @@ import ProposalDetail from './pages/ProposalDetail';
 import Recommendations from './pages/Recommendations';
 import Predictions from './pages/Predictions';
 import ApiHealth from './pages/ApiHealth';
+import Users from './pages/Users';
+import Settings from './pages/Settings';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +39,8 @@ function App() {
             <Route path="/recommendations" element={<Recommendations />} />
             <Route path="/predictions" element={<Predictions />} />
             <Route path="/api-health" element={<ApiHealth />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
 
           {/* Catch-all */}

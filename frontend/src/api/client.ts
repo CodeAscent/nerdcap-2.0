@@ -64,6 +64,7 @@ export const proposalsApi = {
   analysisStatus: (id: string) => api.get(`/api/proposals/${id}/analysis-status`),
   decision: (id: string, action: string, notes?: string) =>
     api.patch(`/api/proposals/${id}/decision`, { action, notes }),
+  delete: (id: string) => api.delete(`/api/proposals/${id}`),
   auditLog: (id: string) => api.get(`/api/proposals/${id}/audit-log`),
   reportUrl: (id: string) => `${API_BASE}/api/proposals/${id}/report`,
 };
@@ -74,6 +75,17 @@ export const dashboardApi = {
   districtMap: () => api.get('/api/dashboard/district-map'),
   conflictAlerts: () => api.get('/api/dashboard/conflict-alerts'),
   rtgsStatus: () => api.get('/api/dashboard/rtgs-status'),
+  officerScores: (limit?: number) => api.get('/api/dashboard/officer-scores', { params: { limit: limit || 10 } }),
+  developerTracking: () => api.get('/api/dashboard/developer-tracking'),
+};
+
+// ── Users ─────────────────────────────────────────────
+export const usersApi = {
+  list: () => api.get('/api/users'),
+  get: (id: string) => api.get(`/api/users/${id}`),
+  create: (data: Record<string, unknown>) => api.post('/api/users', data),
+  update: (id: string, data: Record<string, unknown>) => api.patch(`/api/users/${id}`, data),
+  deactivate: (id: string) => api.delete(`/api/users/${id}`),
 };
 
 // ── Recommendations ───────────────────────────────────

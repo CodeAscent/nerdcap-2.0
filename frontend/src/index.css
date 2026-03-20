@@ -139,6 +139,20 @@
   color: #94a3b8 !important;
   border-color: #334155 !important;
 }
+.district-tooltip {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+  padding: 0 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.district-tooltip::before {
+  border-top-color: #334155 !important;
+}
+.leaflet-interactive {
+  cursor: pointer;
+}
 
 /* Animations */
 @keyframes pulse-ring {

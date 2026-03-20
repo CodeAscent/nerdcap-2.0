@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.database import Base, engine
 from app.models import models  # ensure models are registered
-from app.routers import auth, proposals, dashboard, recommendations, predictions
+from app.routers import auth, proposals, dashboard, recommendations, predictions, users
 from app.stubs import get_all_stubs_status
 
 settings = get_settings()
@@ -41,6 +41,7 @@ app.include_router(proposals.router)
 app.include_router(dashboard.router)
 app.include_router(recommendations.router)
 app.include_router(predictions.router)
+app.include_router(users.router)
 
 
 # ---------------------------------------------------------------------------

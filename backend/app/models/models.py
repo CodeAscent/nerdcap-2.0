@@ -186,7 +186,23 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(200))
     role = Column(SAEnum(UserRole), nullable=False, default=UserRole.developer)
-    department = Column(String(200))  # for officers
-    district = Column(String(100))    # for district-level officers
+    department = Column(String(200))
+    district = Column(String(100))
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class OfficerScore(Base):
+    __tablename__ = "officer_scores"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    score = Column(Float, nullable=False)
+    avg_response_time_hours = Column(Float)
+    proposals_decided = Column(Integer, default=0)
+    data_freshness_score = Column(Float, default=0.0)
+    escalation_resolution_rate = Column(Float, default=0.0)
+    collaboration_index = Column(Float, default=0.0)
+    computed_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")

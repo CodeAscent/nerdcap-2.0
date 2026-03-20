@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { recommendationsApi } from '../api/client';
 import { Star, Loader2, Map, Users, Lightbulb } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
 
 const DISTRICTS = ['Kurnool', 'Anantapur', 'Kadapa', 'Nellore', 'Guntur'];
 
 export default function Recommendations() {
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<'sites' | 'developers' | 'insights'>('sites');
   const [projectType, setProjectType] = useState('solar');
   const [capacityMw, setCapacityMw] = useState(100);
@@ -34,11 +36,26 @@ export default function Recommendations() {
   const developers = developersData?.data || [];
   const insights = insightsData?.data;
 
-  const tabs = [
+  const isDeveloper = user?.role === 'developer';
+
+  const allTabs = [
     { key: 'sites', label: 'Find Sites', icon: Map },
     { key: 'developers', label: 'Find Developers', icon: Users },
     { key: 'insights', label: 'Policy Insights', icon: Lightbulb },
   ] as const;
+
+  const tabs = useMemo(() => {
+    if (isDeveloper) {
+      return allTabs.filter(tab => tab.key === 'sites');
+    }
+    return allTabs;
+  }, [isDeveloper]);
+
+  useEffect(() => {
+    if (isDeveloper && activeTab !== 'sites') {
+      setActiveTab('sites');
+    }
+  }, [isDeveloper, activeTab]);
 
   return (
     <div className="space-y-5 animate-fade-up">
