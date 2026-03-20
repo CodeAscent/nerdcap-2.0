@@ -148,14 +148,14 @@ export default function ProposalDetail() {
               <Shield size={16} className="text-nredcap-400" />
               Land Trust Score
             </h3>
-            <div className="relative h-32 w-full max-w-[240px] mx-auto">
+            <div className="relative h-36 w-full max-w-[280px] mx-auto">
               <ResponsiveContainer width="100%" height="100%">
-                <RadialBarChart cx="50%" cy="100%" innerRadius="70%" outerRadius="100%"
+                <RadialBarChart cx="50%" cy="100%" innerRadius="75%" outerRadius="100%"
                   startAngle={180} endAngle={0} data={[{ score: ts.overall_score, fill: scoreColor(ts.overall_score) }]}>
                   <RadialBar dataKey="score" cornerRadius={6} />
                 </RadialBarChart>
               </ResponsiveContainer>
-              <div className="absolute left-0 right-0 bottom-0 flex items-baseline justify-center gap-1">
+              <div className="absolute left-0 right-0 bottom-2 flex items-baseline justify-center gap-1">
                 <span className="text-4xl font-extrabold text-slate-50 tracking-tight">{ts.overall_score.toFixed(1)}</span>
                 <span className="text-slate-500 font-medium">/100</span>
               </div>
