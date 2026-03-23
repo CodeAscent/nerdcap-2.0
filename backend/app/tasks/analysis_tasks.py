@@ -3,6 +3,8 @@ Celery Background Task: Full AI Analysis Pipeline
 Runs the 5-agent orchestration and stores all results in DB.
 """
 import asyncio
+import logging
+import traceback
 from datetime import datetime
 
 from app.database import SessionLocal
@@ -38,8 +40,18 @@ def run_analysis_background(proposal_id: str):
 
         # Run async orchestration in sync context
         loop = asyncio.new_event_loop()
-        result = loop.run_until_complete(run_analysis(proposal_id, proposal_data, db))
-        loop.close()
+        try:
+            result = loop.run_until_complete(run_analysis(proposal_id, proposal_data, db))
+        finally:
+            loop.close()
+
+        # After the async pipeline, explicitly rollback any aborted transaction that
+        # may have been caused by a SQL error inside run_analysis (e.g. a bad PostGIS
+        # query). This resets the session to a clean state so subsequent writes work.
+        try:
+            db.rollback()
+        except Exception:
+            pass
 
         # Persist agent results
         agent_results_dict = []
@@ -56,6 +68,8 @@ def run_analysis_background(proposal_id: str):
                 "confidence": ar.confidence, "flags": ar.flags
             }, db)
 
+        # Re-fetch proposal after rollback so we're working with a fresh ORM object
+        proposal = db.query(Proposal).filter(Proposal.id == proposal_id).first()
         # Persist council decision
         proposal.agent_results_json = {"agents": agent_results_dict}
         proposal.council_decision_json = result.council_decision
@@ -80,6 +94,8 @@ def run_analysis_background(proposal_id: str):
         db.commit()
 
     except Exception as e:
+        logging.error(f"[Analysis {proposal_id}] FAILED: {type(e).__name__}: {e}")
+        logging.error(traceback.format_exc())
         db.rollback()
         try:
             proposal = db.query(Proposal).filter(Proposal.id == proposal_id).first()

@@ -129,9 +129,7 @@ def detect_proposal_overlaps(
             d.name as developer_name,
             d.company as developer_company,
             ST_Area(
-                ST_Transform(
-                    ST_Intersection(p.boundary_geometry, ST_GeomFromText(:wkt, 4326))::geography
-                )
+                ST_Intersection(p.boundary_geometry, ST_GeomFromText(:wkt, 4326))::geography
             ) / 10000.0 AS overlap_area_ha
         FROM proposals p
         JOIN developers d ON p.developer_id = d.id
@@ -163,38 +161,46 @@ def detect_proposal_overlaps(
     return overlaps
 
 
-def detect_transmission_conflicts(boundary_geometry: dict | str) -> list[dict[str, Any]]:
+def detect_transmission_conflicts(boundary_geometry: dict | str, db: Session | None = None) -> list[dict[str, Any]]:
     wkt = _geometry_to_wkt(boundary_geometry)
     if not wkt:
         return []
 
     conflicts = []
 
-    for corridor in STUB_TRANSMISSION_CORRIDORS:
-        sql = text(f"""
-            SELECT
-                ST_Area(
-                    ST_Transform(
-                        ST_Intersection(
-                            ST_Buffer(ST_GeomFromText(:line, 4326)::geography, :buffer_m)::geometry,
-                            ST_GeomFromText(:boundary, 4326)
-                        )::geography
-                    )
-                ) / 10000.0 AS overlap_area_ha
-            WHERE ST_IsValid(ST_GeomFromText(:boundary, 4326))
-              AND ST_Intersects(
-                  ST_Buffer(ST_GeomFromText(:line, 4326)::geography, :buffer_m)::geometry,
-                  ST_GeomFromText(:boundary, 4326)
-              )
-        """)
-
+    # Resolve a connection to use — reuse the caller's session if available,
+    # otherwise open a fresh one-off connection.
+    if db is not None:
+        conn_ctx = None
+        execute = db.execute
+    else:
         from sqlalchemy import create_engine
         from app.config import get_settings
-        settings = get_settings()
-        engine = create_engine(settings.database_url)
+        _engine = create_engine(get_settings().database_url)
+        conn_ctx = _engine.connect()
+        execute = conn_ctx.execute
 
-        with engine.connect() as conn:
-            result = conn.execute(sql, {
+    try:
+        for corridor in STUB_TRANSMISSION_CORRIDORS:
+            # FROM (SELECT 1) AS _dummy is required in PostgreSQL when the SELECT
+            # has no real table but needs a WHERE clause.
+            sql = text("""
+                SELECT
+                    ST_Area(
+                        ST_Intersection(
+                            ST_Buffer(ST_GeomFromText(:line, 4326)::geography, :buffer_m)::geometry,
+                            ST_GeomFromText(:boundary, 4326)::geography
+                        )
+                    ) / 10000.0 AS overlap_area_ha
+                FROM (SELECT 1) AS _dummy
+                WHERE ST_IsValid(ST_GeomFromText(:boundary, 4326))
+                  AND ST_Intersects(
+                      ST_Buffer(ST_GeomFromText(:line, 4326)::geography, :buffer_m)::geometry,
+                      ST_GeomFromText(:boundary, 4326)
+                  )
+            """)
+
+            result = execute(sql, {
                 "line": corridor["geometry"],
                 "buffer_m": corridor["buffer_m"],
                 "boundary": wkt,
@@ -211,44 +217,53 @@ def detect_transmission_conflicts(boundary_geometry: dict | str) -> list[dict[st
                     "severity": _get_transmission_severity(corridor["voltage_kv"], row.overlap_area_ha),
                     "description": f"Proposal overlaps with {corridor['voltage_kv']}kV transmission corridor: {corridor['name']}",
                 })
+    finally:
+        if conn_ctx is not None:
+            conn_ctx.close()
 
     return conflicts
 
 
-def detect_protected_area_conflicts(boundary_geometry: dict | str) -> list[dict[str, Any]]:
+def detect_protected_area_conflicts(boundary_geometry: dict | str, db: Session | None = None) -> list[dict[str, Any]]:
     wkt = _geometry_to_wkt(boundary_geometry)
     if not wkt:
         return []
 
     conflicts = []
 
-    from sqlalchemy import create_engine
-    from app.config import get_settings
-    settings = get_settings()
-    engine = create_engine(settings.database_url)
+    if db is not None:
+        conn_ctx = None
+        execute = db.execute
+    else:
+        from sqlalchemy import create_engine
+        from app.config import get_settings
+        _engine = create_engine(get_settings().database_url)
+        conn_ctx = _engine.connect()
+        execute = conn_ctx.execute
 
-    for area in STUB_PROTECTED_AREAS:
-        sql = text("""
-            SELECT
-                ST_Area(
-                    ST_Transform(
+    try:
+        for area in STUB_PROTECTED_AREAS:
+            # FROM (SELECT 1) AS _dummy is required in PostgreSQL when the SELECT
+            # has no real table but needs a WHERE clause.
+            sql = text("""
+                SELECT
+                    ST_Area(
                         ST_Intersection(
                             ST_GeomFromText(:protected, 4326),
                             ST_GeomFromText(:boundary, 4326)
                         )::geography
-                    )
-                ) / 10000.0 AS overlap_area_ha,
-                ST_Area(ST_Transform(ST_GeomFromText(:boundary, 4326)::geography)) / 10000.0 AS proposal_area_ha
-            WHERE ST_IsValid(ST_GeomFromText(:boundary, 4326))
-              AND ST_IsValid(ST_GeomFromText(:protected, 4326))
-              AND ST_Intersects(
-                  ST_GeomFromText(:protected, 4326),
-                  ST_GeomFromText(:boundary, 4326)
-              )
-        """)
+                    ) / 10000.0 AS overlap_area_ha,
+                    ST_Area(ST_GeomFromText(:boundary, 4326)::geography) / 10000.0 AS proposal_area_ha
+                FROM (SELECT 1) AS _dummy
+                WHERE ST_IsValid(ST_GeomFromText(:boundary, 4326))
+                  AND ST_IsValid(ST_GeomFromText(:protected, 4326))
+                  AND ST_Intersects(
+                      ST_GeomFromText(:protected, 4326),
+                      ST_GeomFromText(:boundary, 4326)
+                  )
+            """)
 
-        with engine.connect() as conn:
-            result = conn.execute(sql, {
+            result = execute(sql, {
                 "protected": area["geometry"],
                 "boundary": wkt,
             })
@@ -269,6 +284,9 @@ def detect_protected_area_conflicts(boundary_geometry: dict | str) -> list[dict[
                     "severity": _get_protected_area_severity(area["type"], overlap_pct),
                     "description": f"Proposal overlaps {overlap_pct:.1f}% with {area['type']}: {area['name']}",
                 })
+    finally:
+        if conn_ctx is not None:
+            conn_ctx.close()
 
     return conflicts
 
@@ -323,8 +341,8 @@ def run_spatial_analysis(
     db: Session,
 ) -> dict[str, Any]:
     proposal_overlaps = detect_proposal_overlaps(proposal_id, boundary_geometry, db)
-    transmission_conflicts = detect_transmission_conflicts(boundary_geometry)
-    protected_area_conflicts = detect_protected_area_conflicts(boundary_geometry)
+    transmission_conflicts = detect_transmission_conflicts(boundary_geometry, db)
+    protected_area_conflicts = detect_protected_area_conflicts(boundary_geometry, db)
 
     all_conflicts = proposal_overlaps + transmission_conflicts + protected_area_conflicts
 

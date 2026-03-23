@@ -1,7 +1,8 @@
 services:
   # PostgreSQL with PostGIS extension
   postgres:
-    image: postgis/postgis:15-3.3-alpine
+    image: postgis/postgis:15-3.3
+    platform: linux/amd64
     environment:
       POSTGRES_USER: nredcap
       POSTGRES_PASSWORD: nredcap123
