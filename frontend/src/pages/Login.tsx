@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Removed useNavigate
 import { Leaf, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { authApi } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 
 export default function Login() {
-  const navigate = useNavigate();
   const { login } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +19,7 @@ export default function Login() {
     try {
       const res = await authApi.login(email, password);
       login(res.data.access_token, res.data.user);
-      navigate('/dashboard');
+      window.location.href = '/dashboard';
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } };
       setError(e?.response?.data?.detail || 'Invalid credentials');

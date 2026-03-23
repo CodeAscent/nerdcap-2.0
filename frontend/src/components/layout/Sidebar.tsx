@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, Plus,
   Star, TrendingUp, Server, LogOut, Leaf,
@@ -27,11 +27,10 @@ const navItems: NavItem[] = [
 
 export default function Sidebar() {
   const { user, logout } = useAuthStore();
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    window.location.href = '/login';
   };
 
   return (
