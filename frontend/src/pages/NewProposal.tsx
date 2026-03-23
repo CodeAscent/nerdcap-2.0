@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { proposalsApi, parcelsApi, developersApi } from '../api/client';
 import { useAuthStore } from '../store/authStore';
@@ -15,12 +15,15 @@ export default function NewProposal() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  const [projectType, setProjectType] = useState<'solar' | 'wind' | 'hybrid'>('solar');
-  const [capacityMw, setCapacityMw] = useState(100);
-  const [district, setDistrict] = useState('Kurnool');
+  const location = useLocation();
+  const state = location.state as { projectType?: 'solar' | 'wind' | 'hybrid'; capacityMw?: number; district?: string; developerId?: string } | null;
+
+  const [projectType, setProjectType] = useState<'solar' | 'wind' | 'hybrid'>(state?.projectType || 'solar');
+  const [capacityMw, setCapacityMw] = useState(state?.capacityMw || 100);
+  const [district, setDistrict] = useState(state?.district || 'Kurnool');
   const [boundaryJson, setBoundaryJson] = useState('');
   const [error, setError] = useState('');
-  const [selectedDeveloperId, setSelectedDeveloperId] = useState('');
+  const [selectedDeveloperId, setSelectedDeveloperId] = useState(state?.developerId || '');
 
   // Fetch developers to populate selector
   const { data: parcelsData } = useQuery({

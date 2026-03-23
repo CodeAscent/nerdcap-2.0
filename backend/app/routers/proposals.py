@@ -90,6 +90,7 @@ def create_proposal(
         boundary_geojson=payload.boundary_geojson,
         boundary_geometry=boundary_wkt,
         status=ProposalStatus.pending,
+        submitted_by_user_id=current_user.id,
     )
     db.add(proposal)
     db.commit()
@@ -111,10 +112,16 @@ def list_proposals(
 
     if current_user.role == UserRole.developer:
         developer = db.query(Developer).filter(Developer.email == current_user.email).first()
+        from sqlalchemy import or_
         if developer:
-            q = q.filter(Proposal.developer_id == developer.id)
+            q = q.filter(
+                or_(
+                    Proposal.developer_id == developer.id,
+                    Proposal.submitted_by_user_id == current_user.id
+                )
+            )
         else:
-            return []
+            q = q.filter(Proposal.submitted_by_user_id == current_user.id)
     elif current_user.role == UserRole.officer:
         if district:
             q = q.filter(Proposal.district.ilike(f"%{district}%"))

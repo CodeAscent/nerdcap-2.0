@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { dashboardApi, systemApi } from '../api/client';
+import { dashboardApi, systemApi, proposalsApi } from '../api/client';
 import {
   FileText, CheckCircle, AlertTriangle,
   Zap, TrendingUp, Map, Activity,
@@ -96,6 +96,7 @@ interface DashboardSummary {
   analyzing?: number;
   rejected?: number;
   escalated?: number;
+  user_summary?: { role: string; count: number; color: string }[];
 }
 
 interface ConflictAlert {
@@ -485,17 +486,9 @@ function AdminDashboard({
     { name: 'Escalated', value: summary?.escalated ?? 0, color: STATUS_COLORS.escalated },
   ].filter(d => d.value > 0);
 
-  const userSummary = [
-    { role: 'Developers', count: 12, color: 'blue' },
-    { role: 'Officers', count: 5, color: 'purple' },
-    { role: 'Admins', count: 2, color: 'green' },
-  ];
+  const userSummary = summary?.user_summary || [];
 
-  const services = systemHealth?.services || {
-    database: 'healthy',
-    redis: 'healthy',
-    ai_agents: 'healthy',
-  };
+  const services = systemHealth?.services || {};
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -747,12 +740,7 @@ export default function Dashboard() {
 
   const { data: myProposalsRes } = useQuery({
     queryKey: ['my-proposals'],
-    queryFn: () =>
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/proposals?developer_id=${user?.id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        },
-      }).then((res) => res.json()),
+    queryFn: () => proposalsApi.list(),
     enabled: userRole === 'developer',
   });
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { recommendationsApi } from '../api/client';
 import { Star, Loader2, Map, Users, Lightbulb } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
@@ -8,6 +9,7 @@ const DISTRICTS = ['Kurnool', 'Anantapur', 'Kadapa', 'Nellore', 'Guntur'];
 
 export default function Recommendations() {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'sites' | 'developers' | 'insights'>('sites');
   const [projectType, setProjectType] = useState('solar');
   const [capacityMw, setCapacityMw] = useState(100);
@@ -117,7 +119,17 @@ export default function Recommendations() {
           ) : (
             <div className="grid gap-3">
               {(sites as Array<{land_parcel_id: string; name: string; district: string; area_ha: number; match_score: number; trust_score_estimate: number; recommendation_reason: string}>).map((site, i) => (
-                <div key={site.land_parcel_id} className="card hover:border-nredcap-800 transition-colors">
+                <div 
+                  key={site.land_parcel_id} 
+                  className="card hover:border-nredcap-800 transition-colors cursor-pointer"
+                  onClick={() => navigate('/proposals/new', { 
+                    state: { 
+                      projectType, 
+                      capacityMw, 
+                      district: site.district 
+                    } 
+                  })}
+                >
                   <div className="flex items-start gap-3">
                     <span className="text-2xl font-extrabold text-slate-700 w-8 shrink-0">#{i+1}</span>
                     <div className="flex-1 min-w-0">
@@ -153,7 +165,11 @@ export default function Recommendations() {
           ) : (
             <div className="grid gap-3">
               {(developers as Array<{developer_id: string; name: string; company: string; trust_score: number; match_score: number; recommendation_reason: string}>).map((dev, i) => (
-                <div key={dev.developer_id} className="card">
+                <div 
+                  key={dev.developer_id} 
+                  className="card hover:border-gov-600 transition-colors cursor-pointer"
+                  onClick={() => navigate('/proposals/new', { state: { developerId: dev.developer_id } })}
+                >
                   <div className="flex items-start gap-3">
                     <span className="text-2xl font-extrabold text-slate-700 w-8 shrink-0">#{i+1}</span>
                     <div className="flex-1">

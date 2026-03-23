@@ -112,6 +112,7 @@ class Proposal(Base):
     submitted_at = Column(DateTime, default=datetime.utcnow)
     analyzed_at = Column(DateTime)
     decided_at = Column(DateTime)
+    submitted_by_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     developer = relationship("Developer", back_populates="proposals")
     land_parcel = relationship("LandParcel", back_populates="proposals")

@@ -247,6 +247,7 @@ class DashboardSummary(BaseModel):
     avg_trust_score: float
     conflict_rate_pct: float
     district_breakdown: dict[str, int]
+    user_summary: Optional[list[dict]] = None
 
 
 ProposalDetailResponse.model_rebuild()

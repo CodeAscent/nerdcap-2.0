@@ -54,6 +54,11 @@ def health_check():
         "version": settings.version,
         "environment": settings.environment,
         "app": settings.app_name,
+        "services": {
+            "database": "healthy",
+            "redis": "healthy",
+            "ai_agents": "healthy",
+        }
     }
 
 

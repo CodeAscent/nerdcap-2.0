@@ -49,6 +49,18 @@ def dashboard_summary(db: Session = Depends(get_db), current_user=Depends(get_cu
     )
     district_breakdown = {d: c for d, c in district_rows}
 
+    # User breakdown for Admin Dashboard
+    from app.models.models import User
+    user_counts = db.query(User.role, func.count(User.id)).group_by(User.role).all()
+    user_summary = []
+    color_map = {"developer": "blue", "officer": "purple", "admin": "green"}
+    for role, count in user_counts:
+        user_summary.append({
+            "role": role.value.capitalize() + "s" if role else "Unknown",
+            "count": count,
+            "color": color_map.get(role.value, "gray") if role else "gray"
+        })
+
     return DashboardSummary(
         total_proposals=total,
         pending=counts.get("pending", 0),
@@ -60,6 +72,7 @@ def dashboard_summary(db: Session = Depends(get_db), current_user=Depends(get_cu
         avg_trust_score=round(float(avg_score), 1),
         conflict_rate_pct=conflict_rate,
         district_breakdown=district_breakdown,
+        user_summary=user_summary,
     )
 
 

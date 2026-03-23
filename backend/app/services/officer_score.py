@@ -250,6 +250,9 @@ def get_officer_leaderboard(db: Session, limit: int = 10) -> List[dict]:
     """
     Return top officers by score with user details.
     """
+    if db.query(OfficerScore).count() == 0:
+        update_all_officer_scores(db)
+
     results = (
         db.query(OfficerScore, User)
         .join(User, OfficerScore.user_id == User.id)
