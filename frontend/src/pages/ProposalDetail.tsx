@@ -110,7 +110,7 @@ export default function ProposalDetail() {
           <h1 className="page-title">Proposal Detail</h1>
           <p className="text-sm text-slate-500 font-mono mt-0.5">{p.id}</p>
         </div>
-        {/* <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {isAnalyzed && (
             <a href={proposalsApi.reportUrl(id!)} target="_blank" rel="noreferrer" className="btn-secondary">
               <Download size={14} />
@@ -136,7 +136,7 @@ export default function ProposalDetail() {
               Delete Proposal
             </button>
           )}
-        </div> */}
+        </div>
       </div>
 
       {/* Status bar */}
