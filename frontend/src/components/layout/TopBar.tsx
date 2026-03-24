@@ -18,9 +18,7 @@ export default function TopBar() {
         </span>
       </div>
       <div className="flex items-center gap-3">
-        <button className="btn-ghost p-2">
-          <Bell size={16} />
-        </button>
+        
         <div className={`${roleColors[user?.role || 'developer']} capitalize`}>
           {user?.role}
         </div>

@@ -21,8 +21,8 @@ const navItems: NavItem[] = [
   { to: '/recommendations', icon: Star, label: 'Recommendations', roles: ['developer', 'officer', 'admin'] },
   { to: '/predictions', icon: TrendingUp, label: 'Predictions', roles: ['officer', 'admin'] },
   { to: '/users', icon: Users, label: 'Users', roles: ['officer', 'admin'] },
-  { to: '/settings', icon: Settings, label: 'System Settings', roles: ['admin'] },
-  { to: '/api-health', icon: Server, label: 'API Status', roles: ['developer', 'officer', 'admin'] },
+  // { to: '/settings', icon: Settings, label: 'System Settings', roles: ['admin'] },
+  // { to: '/api-health', icon: Server, label: 'API Status', roles: ['developer', 'officer', 'admin'] },
 ];
 
 export default function Sidebar() {
