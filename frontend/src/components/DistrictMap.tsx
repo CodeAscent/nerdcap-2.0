@@ -127,8 +127,7 @@ export default function DistrictMap({
         scrollWheelZoom={false}
         zoomControl={false}
         attributionControl={false}
-        className="w-full h-full"
-        style={{ background: '#0f172a' }}
+        className="w-full h-full rounded-xl z-0 bg-slate-900"
       >
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"

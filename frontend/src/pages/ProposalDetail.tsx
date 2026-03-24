@@ -197,10 +197,10 @@ export default function ProposalDetail() {
             <h3 className="section-title mb-4">Factor Breakdown</h3>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={factorData} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--slate-800))" horizontal={false} />
                 <XAxis type="number" domain={[0, 25]} tick={{ fill: '#64748b', fontSize: 10 }} />
-                <YAxis dataKey="name" type="category" tick={{ fill: '#94a3b8', fontSize: 9 }} width={130} />
-                <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', fontSize: 11 }} />
+                <YAxis dataKey="name" type="category" tick={{ fill: 'rgb(var(--slate-400))', fontSize: 9 }} width={130} />
+                <Tooltip contentStyle={{ background: 'rgb(var(--slate-800))', border: '1px solid rgb(var(--slate-700))', borderRadius: '12px', fontSize: 11 }} />
                 <Bar dataKey="score" radius={[0, 4, 4, 0]} fill="#22c55e" />
               </BarChart>
             </ResponsiveContainer>

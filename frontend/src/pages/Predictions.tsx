@@ -101,10 +101,10 @@ export default function Predictions() {
           <div className="space-y-4">
             <ResponsiveContainer width="100%" height={180}>
               <LineChart data={gridForecast}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--slate-800))" />
                 <XAxis dataKey="period" tick={{ fill: '#64748b', fontSize: 11 }} />
                 <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 11 }} unit="%" />
-                <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: 'rgb(var(--slate-800))', border: '1px solid rgb(var(--slate-700))', borderRadius: '12px', fontSize: 12 }} />
                 <Line type="monotone" dataKey="utilization" stroke="#f59e0b" strokeWidth={2} dot={{ fill: '#f59e0b', r: 5 }} name="Utilization %" />
               </LineChart>
             </ResponsiveContainer>

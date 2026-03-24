@@ -14,7 +14,7 @@ import { useAuthStore } from '../store/authStore';
 import DistrictMap from '../components/DistrictMap';
 
 const STATUS_COLORS: Record<string, string> = {
-  pending:      '#94a3b8',
+  pending:      'rgb(var(--slate-400))',
   analyzing:    '#60a5fa',
   analyzed:     '#a78bfa',
   under_review: '#fb923c',
@@ -301,9 +301,9 @@ function OfficerDashboard({
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: 'rgb(var(--slate-800))', border: '1px solid rgb(var(--slate-700))', borderRadius: '12px', fontSize: 12 }} />
                 <Legend iconType="circle" iconSize={8}
-                  formatter={(value) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{value}</span>} />
+                  formatter={(value) => <span style={{ color: 'rgb(var(--slate-400))', fontSize: 12 }}>{value}</span>} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -319,10 +319,10 @@ function OfficerDashboard({
           {districtData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={districtData} margin={{ top: 0, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--slate-800))" />
                 <XAxis dataKey="district" tick={{ fill: '#64748b', fontSize: 10 }} />
                 <YAxis tick={{ fill: '#64748b', fontSize: 10 }} />
-                <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: 'rgb(var(--slate-800))', border: '1px solid rgb(var(--slate-700))', borderRadius: '12px', fontSize: 12 }} />
                 <Bar dataKey="total_proposals" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Proposals" />
               </BarChart>
             </ResponsiveContainer>
@@ -556,9 +556,9 @@ function AdminDashboard({
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: 'rgb(var(--slate-800))', border: '1px solid rgb(var(--slate-700))', borderRadius: '12px', fontSize: 12 }} />
                 <Legend iconType="circle" iconSize={8}
-                  formatter={(value) => <span style={{ color: '#94a3b8', fontSize: 11 }}>{value}</span>} />
+                  formatter={(value) => <span style={{ color: 'rgb(var(--slate-400))', fontSize: 11 }}>{value}</span>} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -575,10 +575,10 @@ function AdminDashboard({
         {districtData.length > 0 ? (
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={districtData} margin={{ top: 0, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--slate-800))" />
               <XAxis dataKey="district" tick={{ fill: '#64748b', fontSize: 10 }} />
               <YAxis tick={{ fill: '#64748b', fontSize: 10 }} />
-              <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', fontSize: 12 }} />
+              <Tooltip contentStyle={{ background: 'rgb(var(--slate-800))', border: '1px solid rgb(var(--slate-700))', borderRadius: '12px', fontSize: 12 }} />
               <Bar dataKey="total_proposals" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Proposals" />
             </BarChart>
           </ResponsiveContainer>
